@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = "https://comman-gateway-be.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const SHARED_API_KEY = 'HnXVX7endKivrmVLnigm6i7RAPwBIGY85yDVSAd96Nec9XsPYIYavqIlC1tORf2I';
 
 const apiClient = axios.create({
