@@ -18,12 +18,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (apiKey) {
+    // Only fetch user if API key exists in localStorage
+    const storedKey = localStorage.getItem('apiKey');
+    
+    if (storedKey) {
       fetchUser();
     } else {
       setIsLoading(false);
     }
-  }, [apiKey]);
+  }, []);
 
   const fetchUser = async () => {
     try {
@@ -31,7 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      logout();
+      // Don't logout on error, just show login page
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -41,6 +45,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('apiKey', newApiKey);
     setApiKey(newApiKey);
     setIsLoading(true);
+    
+    // Fetch user after setting API key
+    try {
+      const response = await api.getCurrentUser();
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to login:', error);
+      setUser(null);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {

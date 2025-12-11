@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://comman-gateway-be.onrender.com';
+const API_BASE_URL = "https://comman-gateway-be.onrender.com";
+const SHARED_API_KEY = 'HnXVX7endKivrmVLnigm6i7RAPwBIGY85yDVSAd96Nec9XsPYIYavqIlC1tORf2I';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,12 +10,10 @@ const apiClient = axios.create({
   },
 });
 
-// Add API key to requests if available
+
 apiClient.interceptors.request.use((config) => {
-  const apiKey = localStorage.getItem('apiKey');
-  if (apiKey) {
-    config.headers['X-API-Key'] = apiKey;
-  }
+  const apiKey = localStorage.getItem('apiKey') || SHARED_API_KEY;
+  config.headers['X-API-Key'] = apiKey;
   return config;
 });
 
