@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
-import type { User, Rule, AuditLog, UserWithApiKey, ApprovalRequest } from '../api';
+import type { User, Rule, AuditLog, UserWithApiKey, ApprovalRequest, ConflictReport } from '../api';
 import MemberDashboard from './MemberDashboard';
 
 const AdminDashboard: React.FC = () => {
@@ -9,6 +9,7 @@ const AdminDashboard: React.FC = () => {
   const [rules, setRules] = useState<Rule[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
+  const [conflicts, setConflicts] = useState<ConflictReport | null>(null);
   
  
   const [newUsername, setNewUsername] = useState('');
@@ -25,7 +26,10 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (activeTab === 'users') fetchUsers();
-    if (activeTab === 'rules') fetchRules();
+    if (activeTab === 'rules') {
+      fetchRules();
+      fetchConflicts();
+    }
     if (activeTab === 'audit') fetchAuditLogs();
     if (activeTab === 'approvals') fetchApprovals();
   }, [activeTab]);
@@ -45,6 +49,15 @@ const AdminDashboard: React.FC = () => {
       setRules(response.data);
     } catch (error) {
       console.error('Failed to fetch rules:', error);
+    }
+  };
+
+  const fetchConflicts = async () => {
+    try {
+      const response = await api.checkConflicts();
+      setConflicts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch conflicts:', error);
     }
   };
 
@@ -235,6 +248,36 @@ const AdminDashboard: React.FC = () => {
       {/* Rules Tab */}
       {activeTab === 'rules' && (
         <div>
+          {/* Conflict Alert */}
+          {conflicts && conflicts.total_conflicts > 0 && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-6 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-semibold text-yellow-800">⚠️ Rule Conflicts Detected</h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p className="mb-2">Found {conflicts.total_conflicts} conflicting rule(s). Rules with the same pattern but different actions may cause unexpected behavior.</p>
+                    {conflicts.conflicts.map((conflict, idx) => (
+                      <div key={idx} className="mt-2 p-3 bg-white rounded border border-yellow-200">
+                        <p className="font-semibold text-gray-900">Rule #{conflict.rule_id}: <code className="bg-gray-100 px-2 py-1 rounded text-xs">{conflict.pattern}</code> ({conflict.action})</p>
+                        <p className="text-xs mt-1">Conflicts with:</p>
+                        <ul className="ml-4 mt-1 text-xs">
+                          {conflict.conflicts_with.map((c, i) => (
+                            <li key={i}>• Rule #{c.rule_id}: {c.action} (priority: {c.priority})</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Create Rule Form */}
           <div className="bg-white p-8 rounded-2xl shadow-xl mb-8 border border-gray-200">
             <h2 className="text-2xl font-bold mb-6 text-gray-900">Create New Rule</h2>

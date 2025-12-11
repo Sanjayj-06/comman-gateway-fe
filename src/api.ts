@@ -79,6 +79,25 @@ export interface ApprovalRequest {
   approver_username?: string;
 }
 
+export interface RuleConflict {
+  rule_id: number;
+  pattern: string;
+  action: string;
+  priority: number;
+  conflicts_with: Array<{
+    rule_id: number;
+    pattern: string;
+    action: string;
+    priority: number;
+    conflict_type: string;
+  }>;
+}
+
+export interface ConflictReport {
+  total_conflicts: number;
+  conflicts: RuleConflict[];
+}
+
 // API functions
 export const api = {
   // Auth & User
@@ -100,6 +119,7 @@ export const api = {
   updateRule: (id: number, rule: Partial<Omit<Rule, 'id' | 'created_at' | 'created_by'>>) => 
     apiClient.put<Rule>(`/rules/${id}`, rule),
   deleteRule: (id: number) => apiClient.delete(`/rules/${id}`),
+  checkConflicts: () => apiClient.get<ConflictReport>('/rules/conflicts/check'),
   
   // Commands
   submitCommand: (commandText: string) => 
