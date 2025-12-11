@@ -13,9 +13,13 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('Login form submitted');
       await login(apiKey);
-    } catch (err) {
-      setError('Invalid API key. Please check and try again.');
+      console.log('Login completed successfully');
+    } catch (err: any) {
+      console.error('Login error caught in form:', err);
+      const errorMsg = err?.response?.data?.detail || err?.message || 'Invalid API key or server is unreachable. Please try again.';
+      setError(errorMsg);
       setIsLoading(false);
     }
   };
