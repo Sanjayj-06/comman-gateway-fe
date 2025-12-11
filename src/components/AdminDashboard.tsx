@@ -10,6 +10,7 @@ const AdminDashboard: React.FC = () => {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [conflicts, setConflicts] = useState<ConflictReport | null>(null);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   
  
   const [newUsername, setNewUsername] = useState('');
@@ -33,6 +34,22 @@ const AdminDashboard: React.FC = () => {
     if (activeTab === 'audit') fetchAuditLogs();
     if (activeTab === 'approvals') fetchApprovals();
   }, [activeTab]);
+
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchApprovals();
+    }, 10000); // 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const fetchUsers = async () => {
     try {
@@ -83,9 +100,15 @@ const AdminDashboard: React.FC = () => {
     try {
       await api.reviewApproval(approvalId, action);
       fetchApprovals();
-      alert(`Command ${action}d successfully!`);
+      setNotification({
+        message: `✅ Command ${action === 'approve' ? 'approved' : 'rejected'} successfully!`,
+        type: 'success'
+      });
     } catch (error: any) {
-      alert(error.response?.data?.detail || `Failed to ${action} command`);
+      setNotification({
+        message: error.response?.data?.detail || `Failed to ${action} command`,
+        type: 'error'
+      });
     }
   };
 
@@ -127,6 +150,41 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <h1 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Admin Dashboard</h1>
+
+      {/* Notification Banner */}
+      {notification && (
+        <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+          notification.type === 'success' 
+            ? 'bg-green-50 border-green-500 text-green-800' 
+            : 'bg-red-50 border-red-500 text-red-800'
+        } flex items-center justify-between animate-slide-in`}>
+          <span className="font-medium">{notification.message}</span>
+          <button 
+            onClick={() => setNotification(null)}
+            className="text-gray-500 hover:text-gray-700 ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Approval Count Alert */}
+      {approvals.length > 0 && activeTab !== 'approvals' && (
+        <div className="mb-6 p-4 rounded-lg bg-yellow-50 border-l-4 border-yellow-500 flex items-center">
+          <svg className="h-5 w-5 text-yellow-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="text-yellow-800 font-medium">
+            {approvals.length} approval{approvals.length > 1 ? 's' : ''} waiting for review
+          </span>
+          <button
+            onClick={() => setActiveTab('approvals')}
+            className="ml-auto bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 font-semibold text-sm"
+          >
+            Review Now
+          </button>
+        </div>
+      )}
 
       {/* Tab Navigation */}
       <div className="flex space-x-1 mb-8 bg-gray-100 rounded-xl p-2">

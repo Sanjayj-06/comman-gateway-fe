@@ -10,10 +10,43 @@ const MemberDashboard: React.FC = () => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [previousCommands, setPreviousCommands] = useState<Command[]>([]);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+ 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+
+  useEffect(() => {
+    if (previousCommands.length > 0) {
+      commands.forEach(cmd => {
+        const prevCmd = previousCommands.find(pc => pc.id === cmd.id);
+        if (prevCmd && prevCmd.status === 'pending_approval') {
+          if (cmd.status === 'executed') {
+            setMessage({ type: 'success', text: `✅ Your command "${cmd.command_text.substring(0, 30)}..." was approved and executed!` });
+          } else if (cmd.status === 'rejected') {
+            setMessage({ type: 'error', text: `❌ Your command "${cmd.command_text.substring(0, 30)}..." was rejected.` });
+          }
+        }
+      });
+    }
+  }, [commands]);
+
+  
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const fetchData = async () => {
     try {
@@ -21,6 +54,7 @@ const MemberDashboard: React.FC = () => {
         api.getUserCommands(),
         api.getUserStats(),
       ]);
+      setPreviousCommands(commands);
       setCommands(commandsRes.data);
       setStats(statsRes.data);
     } catch (error) {
@@ -83,6 +117,35 @@ const MemberDashboard: React.FC = () => {
         <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Member Dashboard</h1>
         <p className="text-gray-600 text-lg mt-2">Welcome, <span className="text-gray-900 font-semibold">{user?.username}</span>!</p>
       </div>
+
+      {/* Message/Notification Banner */}
+      {message && (
+        <div className={`mb-6 p-4 rounded-lg border-l-4 ${
+          message.type === 'success' 
+            ? 'bg-green-50 border-green-500 text-green-800' 
+            : 'bg-red-50 border-red-500 text-red-800'
+        } flex items-center justify-between`}>
+          <span className="font-medium">{message.text}</span>
+          <button 
+            onClick={() => setMessage(null)}
+            className="text-gray-500 hover:text-gray-700 ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Pending Approvals Alert */}
+      {commands.filter(cmd => cmd.status === 'pending_approval').length > 0 && (
+        <div className="mb-6 p-4 rounded-lg bg-yellow-50 border-l-4 border-yellow-500 flex items-center">
+          <svg className="h-5 w-5 text-yellow-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-yellow-800 font-medium">
+            {commands.filter(cmd => cmd.status === 'pending_approval').length} command{commands.filter(cmd => cmd.status === 'pending_approval').length > 1 ? 's' : ''} waiting for approval
+          </span>
+        </div>
+      )}
 
       {/* Stats Cards */}
       {stats && (
