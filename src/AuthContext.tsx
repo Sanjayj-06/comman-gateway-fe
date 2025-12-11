@@ -48,14 +48,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Fetch user after setting API key
     try {
+      console.log('Attempting login with API key...');
       const response = await api.getCurrentUser();
+      console.log('Login successful, user:', response.data);
       setUser(response.data);
-    } catch (error) {
-      console.error('Failed to login:', error);
-      setUser(null);
-      throw error;
-    } finally {
       setIsLoading(false);
+    } catch (error: any) {
+      console.error('Failed to login:', error);
+      console.error('Error details:', error?.response?.data);
+      localStorage.removeItem('apiKey'); // Remove invalid key
+      setUser(null);
+      setIsLoading(false);
+      throw error;
     }
   };
 
