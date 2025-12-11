@@ -112,24 +112,24 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Admin Dashboard</h1>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-4 mb-6 border-b">
+      <div className="flex space-x-1 mb-8 bg-gray-100 rounded-xl p-2">
         {['commands', 'users', 'rules', 'approvals', 'audit'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab as any)}
-            className={`pb-2 px-4 font-semibold ${
+            className={`flex-1 py-3 px-6 font-semibold rounded-lg transition-all duration-200 ${
               activeTab === tab
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-gray-600 hover:text-gray-800'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
             {tab === 'approvals' && approvals.length > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+              <span className="ml-2 bg-red-500 text-white text-xs px-2.5 py-0.5 rounded-full animate-pulse">
                 {approvals.length}
               </span>
             )}
@@ -148,8 +148,8 @@ const AdminDashboard: React.FC = () => {
       {activeTab === 'users' && (
         <div>
           {/* Create User Form */}
-          <div className="bg-white p-6 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-bold mb-4">Create New User</h2>
+          <div className="bg-white p-8 rounded-2xl shadow-xl mb-8 border border-gray-200">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">Create New User</h2>
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div className="flex space-x-4">
                 <input
@@ -157,20 +157,20 @@ const AdminDashboard: React.FC = () => {
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
                   placeholder="Username"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                   required
                 />
                 <select
                   value={newUserRole}
                   onChange={(e) => setNewUserRole(e.target.value as 'admin' | 'member')}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                  className="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                 >
                   <option value="member">Member</option>
                   <option value="admin">Admin</option>
                 </select>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 font-semibold shadow-lg transition-all"
                 >
                   Create User
                 </button>
@@ -178,16 +178,16 @@ const AdminDashboard: React.FC = () => {
             </form>
             
             {createdUser && (
-              <div className="mt-4 p-4 bg-green-50 border border-green-300 rounded-lg">
-                <p className="font-semibold text-green-800 mb-2">User created successfully!</p>
-                <p className="text-sm mb-1">Username: {createdUser.username}</p>
-                <p className="text-sm mb-2">API Key (save this now!):</p>
-                <code className="text-xs bg-white p-2 rounded block overflow-x-auto">
+              <div className="mt-6 p-6 bg-green-50 border border-green-300 rounded-xl">
+                <p className="font-semibold text-green-700 mb-3 text-lg">✓ User created successfully!</p>
+                <p className="text-sm mb-2 text-gray-700">Username: <span className="text-gray-900 font-semibold">{createdUser.username}</span></p>
+                <p className="text-sm mb-2 text-gray-700">API Key (save this now!):</p>
+                <code className="text-sm bg-white p-3 rounded-lg block overflow-x-auto text-gray-900 border border-gray-200">
                   {createdUser.api_key}
                 </code>
                 <button
                   onClick={() => setCreatedUser(null)}
-                  className="mt-2 text-sm text-green-700 hover:text-green-900"
+                  className="mt-3 text-sm text-green-700 hover:text-green-800 font-semibold"
                 >
                   Dismiss
                 </button>
@@ -196,36 +196,38 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Users List */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">All Users</h2>
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Username</th>
-                  <th className="text-left py-2">Role</th>
-                  <th className="text-left py-2">Credits</th>
-                  <th className="text-left py-2">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-b hover:bg-gray-50">
-                    <td className="py-2">{user.username}</td>
-                    <td className="py-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {user.role.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="py-2">{user.credits}</td>
-                    <td className="py-2 text-sm text-gray-600">
-                      {new Date(user.created_at).toLocaleDateString()}
-                    </td>
+          <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">All Users</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Username</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Role</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Credits</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Created</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-4 text-gray-900 font-medium">{user.username}</td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          user.role === 'admin' ? 'bg-purple-100 text-purple-800 border border-purple-300' : 'bg-blue-100 text-blue-800 border border-blue-300'
+                        }`}>
+                          {user.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-green-600 font-semibold">{user.credits}</td>
+                      <td className="py-4 px-4 text-sm text-gray-600">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -234,27 +236,27 @@ const AdminDashboard: React.FC = () => {
       {activeTab === 'rules' && (
         <div>
           {/* Create Rule Form */}
-          <div className="bg-white p-6 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-bold mb-4">Create New Rule</h2>
+          <div className="bg-white p-8 rounded-2xl shadow-xl mb-8 border border-gray-200">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">Create New Rule</h2>
             <form onSubmit={handleCreateRule} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Pattern (Regex)</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Pattern (Regex)</label>
                 <input
                   type="text"
                   value={newRule.pattern}
                   onChange={(e) => setNewRule({ ...newRule, pattern: e.target.value })}
                   placeholder="e.g., ^sudo\s+"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                   required
                 />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Action</label>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Action</label>
                   <select
                     value={newRule.action}
                     onChange={(e) => setNewRule({ ...newRule, action: e.target.value as any })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                   >
                     <option value="AUTO_ACCEPT">AUTO_ACCEPT</option>
                     <option value="AUTO_REJECT">AUTO_REJECT</option>
@@ -262,110 +264,114 @@ const AdminDashboard: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Priority</label>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Priority</label>
                   <input
                     type="number"
                     value={newRule.priority}
                     onChange={(e) => setNewRule({ ...newRule, priority: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>
                 <div className="flex items-end">
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 font-semibold shadow-lg transition-all"
                   >
                     Create Rule
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Description</label>
                 <input
                   type="text"
                   value={newRule.description}
                   onChange={(e) => setNewRule({ ...newRule, description: e.target.value })}
                   placeholder="Optional description"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"
                 />
               </div>
             </form>
           </div>
 
           {/* Rules List */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">All Rules</h2>
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Priority</th>
-                  <th className="text-left py-2">Pattern</th>
-                  <th className="text-left py-2">Action</th>
-                  <th className="text-left py-2">Description</th>
-                  <th className="text-left py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rules.map((rule) => (
-                  <tr key={rule.id} className="border-b hover:bg-gray-50">
-                    <td className="py-2 font-bold">{rule.priority}</td>
-                    <td className="py-2 font-mono text-sm">{rule.pattern}</td>
-                    <td className="py-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        rule.action === 'AUTO_ACCEPT' ? 'bg-green-100 text-green-800' :
-                        rule.action === 'AUTO_REJECT' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {rule.action}
-                      </span>
-                    </td>
-                    <td className="py-2 text-sm text-gray-600">{rule.description || '-'}</td>
-                    <td className="py-2">
-                      <button
-                        onClick={() => handleDeleteRule(rule.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
+          <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">All Rules</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Priority</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Pattern</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Action</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Description</th>
+                    <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {rules.map((rule) => (
+                    <tr key={rule.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-4 font-bold text-blue-600 text-lg">{rule.priority}</td>
+                      <td className="py-4 px-4 font-mono text-sm text-gray-900 bg-gray-50 rounded px-3 py-2">{rule.pattern}</td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          rule.action === 'AUTO_ACCEPT' ? 'bg-green-100 text-green-800 border border-green-300' :
+                          rule.action === 'AUTO_REJECT' ? 'bg-red-100 text-red-800 border border-red-300' :
+                          'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                        }`}>
+                          {rule.action}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-sm text-gray-600">{rule.description || '-'}</td>
+                      <td className="py-4 px-4">
+                        <button
+                          onClick={() => handleDeleteRule(rule.id)}
+                          className="text-red-600 hover:text-red-700 text-sm font-semibold transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
       {/* Audit Tab */}
       {activeTab === 'audit' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-4">Audit Logs</h2>
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Time</th>
-                <th className="text-left py-2">User</th>
-                <th className="text-left py-2">Action</th>
-                <th className="text-left py-2">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 text-sm text-gray-600">
-                    {new Date(log.timestamp).toLocaleString()}
-                  </td>
-                  <td className="py-2">{log.username || `User ${log.user_id}`}</td>
-                  <td className="py-2 font-semibold">{log.action}</td>
-                  <td className="py-2 text-sm text-gray-600 max-w-md truncate">
-                    {log.details || '-'}
-                  </td>
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">Audit Logs</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-300">
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Time</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">User</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Action</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {auditLogs.map((log) => (
+                  <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4 text-sm text-gray-600">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </td>
+                    <td className="py-4 px-4 text-gray-900 font-medium">{log.username || `User ${log.user_id}`}</td>
+                    <td className="py-4 px-4 font-semibold text-blue-600">{log.action}</td>
+                    <td className="py-4 px-4 text-sm text-gray-600 max-w-md truncate">
+                      {log.details || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {auditLogs.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-12 text-gray-500">
               No audit logs yet.
             </div>
           )}
@@ -374,47 +380,49 @@ const AdminDashboard: React.FC = () => {
 
       {/* Approvals Tab */}
       {activeTab === 'approvals' && (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-4">Pending Approvals</h2>
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Command</th>
-                <th className="text-left py-2">Requested By</th>
-                <th className="text-left py-2">Time</th>
-                <th className="text-left py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {approvals.map((approval) => (
-                <tr key={approval.id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 font-mono text-sm">{approval.command_text}</td>
-                  <td className="py-2">{approval.requester_username}</td>
-                  <td className="py-2 text-sm text-gray-600">
-                    {new Date(approval.created_at).toLocaleString()}
-                  </td>
-                  <td className="py-2">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleApprovalAction(approval.id, 'approve')}
-                        className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleApprovalAction(approval.id, 'reject')}
-                        className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </td>
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">Pending Approvals</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-300">
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Command</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Requested By</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Time</th>
+                  <th className="text-left py-4 px-4 text-gray-700 font-semibold text-sm uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {approvals.map((approval) => (
+                  <tr key={approval.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4 font-mono text-sm text-gray-900 bg-gray-50 rounded px-3 py-2">{approval.command_text}</td>
+                    <td className="py-4 px-4 text-gray-900 font-medium">{approval.requester_username}</td>
+                    <td className="py-4 px-4 text-sm text-gray-600">
+                      {new Date(approval.created_at).toLocaleString()}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleApprovalAction(approval.id, 'approve')}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 font-semibold shadow-lg transition-all"
+                        >
+                          ✓ Approve
+                        </button>
+                        <button
+                          onClick={() => handleApprovalAction(approval.id, 'reject')}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 font-semibold shadow-lg transition-all"
+                        >
+                          ✗ Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {approvals.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-12 text-gray-500">
               No pending approvals.
             </div>
           )}
